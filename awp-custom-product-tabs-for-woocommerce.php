@@ -1,91 +1,101 @@
 <?php
 /*
-Plugin Name: [0.0.1] Custom Product Tabs for WooCommerce
+Plugin Name: [0.0.2] Custom Product Tabs for WooCommerce
 Plugin URI: http://almondwp.com
 Description: A WordPress plugin to add custom product tabs to the products for WooCommerce.
-Version: 0.0.1
+Version: 0.0.2
 Author: Gabriel Maldonado
 Author URI: http://almondwp.com
 */
 
-/**
-*
-* The main Class
-*
-* @since 
-*/
-class AWP_GMA_Custom_Product_Tabs{
+class WC_Settings_Tab_Demo {
 
-	// Q: la clase esperaba una funcion __construct y dio error hasta que puse public delate de post-type, lo mismo para $id, me da Parse error: syntax error, unexpected '$id' (T_VARIABLE), expecting function (T_FUNCTION)
-	//public $post_type = 'awp_tab';
-
-	/**
-	* Holds the custom post type id
-	* @see woocommerce_settings_tabs_array()
-	* @var string
-	*/
-	public $id = 'awp_custom_tabs';
-
-	function __construct(){
-
-		add_filter( 
-			'woocommerce_settings_tabs_array', //tag
-			/* call_user_func_array() expects parameter 1 to be a valid callback*/
-			//'woocommerce_settings_tabs_array', //function
-			array(
-				$this, 
-				'woocommerce_settings_tabs_array'
-			),
-			/* changed error to:
-			Warning: call_user_func_array() expects parameter 1 to be a valid callback, class 'AWP_GMA_Custom_Product_Tabs' does not have a method 'woocommerce_settings_tabs_array'
-			*/			
-			50); //priority
-
-		// Estaba en lo correcto al pensar que necesitaba iniciar de alguna manera el custom product tab post type
-		add_action( 
-			'init', 
-			//'awp_gma_create_custom_product_tabs_post_type', 
-			array(
-				$this, 
-				'awp_gma_create_custom_product_tabs_post_type'
-			),
-			0);
-	}
-	/*
-	Warning: Invalid argument supplied for foreach() in /Applications/MAMP/htdocs/wordpress-core/build/wp-content/plugins/woocommerce/includes/admin/views/html-admin-settings.php on line 14
-
-	woocommerce_settings_tabs_array is a method provided by woocommerce
-
-	implementing the woocommerce_settings_tabs_array method of our class which we hook to woocommerce_settings_tabs_array filter hook provided by WooCommerce
-	*/
     /**
-     * woocommerce_settings_tabs_array
-     * @param $test_param Array that contains all the parameters to display as navigation tabs under WooCommerce > Settings
-     * @return 
-     */	
-	function woocommerce_settings_tabs_array($params){
+     * Bootstraps the class and hooks required actions & filters.
+     *
+     */
+    function __construct() {
 
-		//print_r($test_param);
-		$params[$this->id] = ('Custom Product Tabs');
-		return $params;
-		/*
-		Undefined property
-		AWP_GMA_Custom_Product_Tabs::$id
-		*/
-		
+        add_filter( 'woocommerce_settings_tabs_array', __CLASS__ . '::add_settings_tab', 50 );
+        add_action( 'woocommerce_settings_tabs_settings_tab_demo', __CLASS__ . '::settings_tab' );
+        add_action( 'woocommerce_update_options_settings_tab_demo', __CLASS__ . '::update_settings' );
+        
+        add_action('init', array($this,'awp_gma_create_custom_product_tabs_post_type'), 0);
 
-	}
+    }
+    
+    
+    /**
+     * Add a new settings tab to the WooCommerce settings tabs array.
+     *
+     * @param array $settings_tabs Array of WooCommerce setting tabs & their labels, excluding the Subscription tab.
+     * @return array $settings_tabs Array of WooCommerce setting tabs & their labels, including the Subscription tab.
+     */
+    public static function add_settings_tab( $settings_tabs ) {
+        $settings_tabs['settings_tab_demo'] = __( 'Settings Demo Tab', 'woocommerce-settings-tab-demo' );
+        return $settings_tabs;
+    }
 
-		/**
-		* Registers a new post type
-		* @uses $wp_post_types Inserts new post type object into the list
-		*
-		* @param string  Post type key, must not exceed 20 characters
-		* @param array|string  See optional args description above.
-		* @return object|WP_Error the registered post type object, or an error object
-		*/
-		function awp_gma_create_custom_product_tabs_post_type() {
-		
+
+    /**
+     * Uses the WooCommerce admin fields API to output settings via the @see woocommerce_admin_fields() function.
+     *
+     * @uses woocommerce_admin_fields()
+     * @uses self::get_settings()
+     */
+    public static function settings_tab() {
+        woocommerce_admin_fields( self::get_settings() );
+    }
+
+
+    /**
+     * Uses the WooCommerce options API to save settings via the @see woocommerce_update_options() function.
+     *
+     * @uses woocommerce_update_options()
+     * @uses self::get_settings()
+     */
+    public static function update_settings() {
+        woocommerce_update_options( self::get_settings() );
+    }
+
+
+    /**
+     * Get all the settings for this plugin for @see woocommerce_admin_fields() function.
+     *
+     * @return array Array of settings for @see woocommerce_admin_fields() function.
+     */
+    public static function get_settings() {
+
+        $settings = array(
+            'section_title' => array(
+                'name'     => __( 'Section Title', 'woocommerce-settings-tab-demo' ),
+                'type'     => 'title',
+                'desc'     => '',
+                'id'       => 'wc_settings_tab_demo_section_title'
+            ),
+            'title' => array(
+                'name' => __( 'Title', 'woocommerce-settings-tab-demo' ),
+                'type' => 'text',
+                'desc' => __( 'This is some helper text', 'woocommerce-settings-tab-demo' ),
+                'id'   => 'wc_settings_tab_demo_title'
+            ),
+            'description' => array(
+                'name' => __( 'Description', 'woocommerce-settings-tab-demo' ),
+                'type' => 'textarea',
+                'desc' => __( 'This is a paragraph describing the setting. Lorem ipsum yadda yadda yadda. Lorem ipsum yadda yadda yadda. Lorem ipsum yadda yadda yadda. Lorem ipsum yadda yadda yadda.', 'woocommerce-settings-tab-demo' ),
+                'id'   => 'wc_settings_tab_demo_description'
+            ),
+            'section_end' => array(
+                 'type' => 'sectionend',
+                 'id' => 'wc_settings_tab_demo_section_end'
+            )
+        );
+
+        return apply_filters( 'wc_settings_tab_demo_settings', $settings );
+    }
+
+    function awp_gma_create_custom_product_tabs_post_type(){
+			
 			$labels = array(
 				'name'                => __( 'Plural Name', 'text-domain' ),
 				'singular_name'       => __( 'Singular Name', 'text-domain' ),
@@ -128,8 +138,8 @@ class AWP_GMA_Custom_Product_Tabs{
 					)
 			);
 			register_post_type( 'awp_tab', $args );
-			//http://localhost/wordpress-core/build/wp-admin/post-new.php?post_type=single-awp_tab
-		}
-		//add_action( 'init', 'awp_gma_create_custom_product_tabs_post_type' );
+    }
+
 }
-new AWP_GMA_Custom_Product_Tabs();
+
+new WC_Settings_Tab_Demo();
