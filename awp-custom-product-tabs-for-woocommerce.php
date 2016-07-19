@@ -16,14 +16,29 @@ Author URI: http://almondwp.com
 */
 class AWP_GMA_Custom_Product_Tabs{
 
-	// Q: la clase esperaba una funcion __construct y dio error hasta que puse public delate de post-type
-	public $post_type = 'awp_tab';
+	// Q: la clase esperaba una funcion __construct y dio error hasta que puse public delate de post-type, lo mismo para $id, me da Parse error: syntax error, unexpected '$id' (T_VARIABLE), expecting function (T_FUNCTION)
+	//public $post_type = 'awp_tab';
+
+	/**
+	* Holds the custom post type id
+	* @see woocommerce_settings_tabs_array()
+	* @var string
+	*/
+	public $id = 'awp_custom_tabs';
 
 	function __construct(){
 
 		add_filter( 
 			'woocommerce_settings_tabs_array', //tag
-			'woocommerce_settings_tabs_array', //function
+			/* call_user_func_array() expects parameter 1 to be a valid callback*/
+			//'woocommerce_settings_tabs_array', //function
+			array(
+				$this, 
+				'woocommerce_settings_tabs_array'
+			),
+			/* changed error to:
+			Warning: call_user_func_array() expects parameter 1 to be a valid callback, class 'AWP_GMA_Custom_Product_Tabs' does not have a method 'woocommerce_settings_tabs_array'
+			*/			
 			50); //priority
 
 		// Estaba en lo correcto al pensar que necesitaba iniciar de alguna manera el custom product tab post type
@@ -35,6 +50,30 @@ class AWP_GMA_Custom_Product_Tabs{
 				'awp_gma_create_custom_product_tabs_post_type'
 			),
 			0);
+	}
+	/*
+	Warning: Invalid argument supplied for foreach() in /Applications/MAMP/htdocs/wordpress-core/build/wp-content/plugins/woocommerce/includes/admin/views/html-admin-settings.php on line 14
+
+	woocommerce_settings_tabs_array is a method provided by woocommerce
+
+	implementing the woocommerce_settings_tabs_array method of our class which we hook to woocommerce_settings_tabs_array filter hook provided by WooCommerce
+	*/
+    /**
+     * woocommerce_settings_tabs_array
+     * @param $test_param Array that contains all the parameters to display as navigation tabs under WooCommerce > Settings
+     * @return 
+     */	
+	function woocommerce_settings_tabs_array($params){
+
+		//print_r($test_param);
+		$params[$this->id] = ('Custom Product Tabs');
+		return $params;
+		/*
+		Undefined property
+		AWP_GMA_Custom_Product_Tabs::$id
+		*/
+		
+
 	}
 
 		/**
@@ -70,7 +109,8 @@ class AWP_GMA_Custom_Product_Tabs{
 				'public'              => true,
 				'show_ui'             => true,
 				'show_in_menu'        => true,
-				'show_in_admin_bar'   => true,
+				'show_in_menu'        => 'edit.php?post_type=product',
+				//'show_in_admin_bar'   => true,
 				'menu_position'       => null,
 				'menu_icon'           => null,
 				'show_in_nav_menus'   => true,
