@@ -139,6 +139,27 @@ class WC_Settings_Tab_Demo {
 			);
 			register_post_type( 'awp_tab', $args );
     }
+    /**
+    *
+    *
+    *
+    */
+    function show_awp_tab_field(){
+
+    }
+    /**
+    *
+    *
+    *
+    */
+    function save_awp_tab_field(){
+
+    }
+    function woocommerce_product_write_panel_tabs(){
+
+    	echo 'hello';
+    }
+
 
 }
 
