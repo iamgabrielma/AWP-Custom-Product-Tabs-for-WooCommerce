@@ -55,8 +55,12 @@ class AWP_Custom_Product_Tabs{
             add_filter( 'woocommerce_settings_tabs_array', array($this,'woocommerce_settings_tabs_array'), 50 );
             //show settings tab
             add_action( 'woocommerce_settings_tabs_awp_custom_tabs', array($this,'show_settings_tab' ));
-            //save settings tab
+            //save settings tab SAVE ID
             add_action( 'woocommerce_update_options_awp_custom_tabs', array($this,'update_settings_tab' ));
+            /*
+            woocommerce_update_option_{field_type} action hook to save its value. SAVE POST TYPE
+            */
+            add_action( 'woocommerce_update_option_awp_gma_tab',array($this,'save_awp_gma_tab_field' ),10);
  
             //add tabs select field
             /*
@@ -82,10 +86,7 @@ class AWP_Custom_Product_Tabs{
             */
             add_action('woocommerce_admin_field_awp_gma_tab',array($this,'show_awp_gma_tab_field' ),10);
             //save tabs select field
-            /*
-            woocommerce_update_option_{field_type} action hook to save its value.
-            */
-            add_action( 'woocommerce_update_option_awp_gma_tab',array($this,'save_awp_gma_tab_field' ),10);
+
  
             //add product tab link in admin
             add_action( 'woocommerce_product_write_panel_tabs', array($this,'woocommerce_product_write_panel_tabs' ));
@@ -98,6 +99,7 @@ class AWP_Custom_Product_Tabs{
             add_filter( 'woocommerce_product_tabs', array($this,'woocommerce_product_tabs') );
         }
         //ajax search handler
+
         add_action('wp_ajax_woocommerce_json_custom_tabs', array($this,'woocommerce_json_custom_tabs'));
         //register_post_type
         // this is what gets called and creates the custom post type with the args on function custom_product_tabs_post_type()
@@ -130,7 +132,7 @@ class AWP_Custom_Product_Tabs{
         $settings_tabs['awp_custom_tabs'] = __('Almond Custom Tabs','AWP');
 
         /* Para llamar a awp_debug() no puedo desde el scope de esta funcion ya que es una funcion fuera, pero si puedo llamarla como un metodo del objeto que comprende las dos.*/
-        AWP_Custom_Product_Tabs::awp_debug($settings_tabs);
+        //AWP_Custom_Product_Tabs::awp_debug($settings_tabs);
 
         return $settings_tabs;
     }
@@ -202,7 +204,7 @@ class AWP_Custom_Product_Tabs{
                 'id'   => 'wc_awp_custom_tabs_section_end',
             )
         );
-        AWP_Custom_Product_Tabs::awp_debug($settings);
+        //AWP_Custom_Product_Tabs::awp_debug($settings);
         //AWP_Custom_Product_Tabs::awp_debug($this->id);
         //AWP_Custom_Product_Tabs::awp_debug($this::$id);
          //awp_custom_tabs, me introduce la variable global y así no tengo que reescribirlo todas las veces. siendo $this el objeto y $id, 
@@ -233,6 +235,7 @@ class AWP_Custom_Product_Tabs{
         global $woocommerce;
         ?>
         <!-- ADDED on the top, below the <h2> -->
+        <form method="post">
         <span class="dashicons dashicons-welcome-add-page"></span>
         
         <tr valign="top">
@@ -244,33 +247,65 @@ class AWP_Custom_Product_Tabs{
             </th>
             <td class="forminp forminp-<?php echo sanitize_title( $field['type'] ) ?>">
                 <p class="form-field custom_product_tabs">
+                <div>
+                    <select id="custom_product_tabs" multiple="multiple" name="<?php echo $field['id'];?>[]" style="height:100%;width:50%;">
+                    <?php
+                        $tabds_ids = get_option($field['id']);
+                        //$_ids = ['1417']; // test for selected one post
+                        $_ids = ! empty( $tabs_ids ) ? array_map( 'absint',  $tabs_ids ) : array(); //magia
 
-                    <select id="custom_product_tabs" style="width: 50%;" name="<?php echo $field['id'];?>[]" class="ajax_chosen_select_tabs" multiple="multiple" data-placeholder="<?php _e( 'Search for a custom AWP tab&hellip;', 'AWP' ); ?>">
+                        foreach ($this->get_custom_tabs_list() as $id => $label) {
+                            
+                            $selected = in_array($id, $_ids)?  'selected="selected"' : '';
+                            
+
+                            //$label es basicamente las nuevas tablas que creamos globales, por eso hay que meter las <option> dentro del loop, para que lo cojan como valor de la opcion, lo mismo para id si no quiero usar $field['id']
+                            //echo $label; //this is a new tab, this is a new tab 2, ...
+                            echo '<option value="' . $id . '" ' . $selected . ' >' . $label . '</option>';
+                        }
+                    ?>
+                        
+
+                    </select>
+                </div>
+                <div>
+                     
+                        <button type="submit" value="Submit"></button>
+                    
+                </div>
+                    <!--<select id="custom_product_tabs" style="width: 50%;" name="<?php/* echo $field['id'];?>[]" class="ajax_chosen_select_tabs" multiple="multiple" data-placeholder="<?php _e( 'Search for a custom AWP tab&hellip;', 'AWP' ); ?>"> 
+
                         <?php   
+                        /*
                             $tabs_ids = get_option($field['id']);
                             $_ids = ! empty( $tabs_ids ) ? array_map( 'absint',  $tabs_ids ) : array();
                             foreach ( $this->get_custom_tabs_list() as $id => $label ) {
                                 $selected = in_array($id, $_ids)?  'selected="selected"' : '';
                                 echo '<option value="' . esc_attr( $id ) . '"'.$selected.'>' . esc_html( $label ) . '</option>';
                             }
+                        */
                         ?>
-                    </select>
+                    <!--</select>-->
                 </p>
             </td>
-        </tr><?php
+        </tr>
+        </form>
 
-        AWP_Custom_Product_Tabs::awp_debug($woocommerce);
+
+        <?php
+
+        //AWP_Custom_Product_Tabs::awp_debug($woocommerce);
         /* object(WooCommerce)#244 (10) { ["version"]=> string(5) "2.6.2" ["session"]=> NULL ["query"]=> object(WC_Query)#248 (1) { ["query_vars"]=> array(13) { ["order-pay"]=> string(9) "order-pay" ["order-received"]=> string(14) "order-received" ["orders"]=> string(6) "orders" ["view-order"]=> string(10) "view-order" ["downloads"]=> string(9) "downloads" ["edit-account"]=> string(12) "edit-account" ["edit-address"]=> string(12) "edit-address" ["payment-methods"]=> string(15) "payment-methods" ["lost-password"]=> string(13) "lost-password" ["customer-logout"]=> string(15) "customer-logout" ["add-payment-method"]=> string(18) "add-payment-method" ["delete-payment-method"]=> string(21) "delete-payment-method" ["set-default-payment-method"]=> string(26) "set-default-payment-method" } } ["product_factory"]=> object(WC_Product_Factory)#214 (0) { } ["countries"]=> object(WC_Countries)#219 (2) { ["locale"]=> NULL ["address_formats"]=> NULL } ["integrations"]=> object(WC_Integrations)#166 (1) { ["integrations"]=> array(0) { } } ["cart"]=> NULL ["customer"]=> NULL ["order_factory"]=> object(WC_Order_Factory)#168 (0) { } ["api"]=> object(WC_API)#249 (2) { ["server"]=> NULL ["authentication"]=> NULL } } 
         */
-        AWP_Custom_Product_Tabs::awp_debug($woocommerce->plugin_url());
+        //AWP_Custom_Product_Tabs::awp_debug($woocommerce->plugin_url());
         // string(68) "http://localhost/wordpress-core/build/wp-content/plugins/woocommerce" 
-        AWP_Custom_Product_Tabs::awp_debug($field['id']);
+        //AWP_Custom_Product_Tabs::awp_debug($field['id']);
         // string(26) "wc_awp_custom_tabs_globals" 
 
         /*
         We change the select tag element class attribute to ajax_chosen_select_tabs because we don’t want to search for products, we want to search for tabs. So next we need to tell WooCommerce (well not as much WooCommerce as ajaxChosen library which is included by WooCommerce) to search for tabs when we type in a name or an id and we do so by hooking another method named ajax_footer_js on line 33, so let implement that:
         */
-        add_action('admin_footer',array($this,'ajax_footer_js'));
+        //add_action('admin_footer',array($this,'ajax_footer_js'));
     }
  
     /**
@@ -290,7 +325,7 @@ class AWP_Custom_Product_Tabs{
         }else{
             delete_option($field['id']);
         }
-        AWP_Custom_Product_Tabs::awp_debug($field['id']);
+        //AWP_Custom_Product_Tabs::awp_debug($field['id']);
     }
  
     /**
@@ -306,6 +341,7 @@ class AWP_Custom_Product_Tabs{
 
     A better practice solution would be to include this method as an external JavaScript file using wp_enqueue_script
     */
+    /*
     function ajax_footer_js(){
         ?>
         <script type="text/javascript">
@@ -318,7 +354,7 @@ class AWP_Custom_Product_Tabs{
         </script>
         <?php
     }
- 
+    */
     /**
      * woocommerce_product_write_panel_tabs
      * Used to add a product custom tab to product edit screen
@@ -361,17 +397,47 @@ class AWP_Custom_Product_Tabs{
         <div id="custom_tab_data_ctabs" class="panel woocommerce_options_panel">
             <?php
             // output the fields markup one at a time
+            
+            foreach ($fields as $field) {
+                $tabs_ids = get_post_meta( $post->ID, $field['key'], true );
+                $_ids = ! empty( $tabs_ids ) ? array_map( 'absint',  $tabs_ids ) : array();
+                ?>
+                    <div class="">
+                        <p class="">
+                            <?php echo $field['label']; ?>
+                            <select multiple="multiple" name="<?php echo $field['key']; ?>[]">
+                                <?php 
+
+                                    foreach ($this->get_custom_tabs_list() as $id => $label) {
+                                        $selected = in_array($id, $_ids)?  'selected="selected"' : '';
+                                        echo '<option value="' . $id . '" ' . $selected . ' >' . $label . '</option>';
+
+                                    }
+
+
+                                ?>   
+                            </select>
+                            
+                        </p>
+                    </div>
+                <?php
+            }
+
+            /*
             foreach ($fields as $f) {
                 $tabs_ids = get_post_meta( $post->ID, $f['key'], true );
                 $_ids = ! empty( $tabs_ids ) ? array_map( 'absint',  $tabs_ids ) : array();
                 ?>
+
                 <div class="options_group">
                     <p class="form-field custom_product_tabs">
                     
                     <!--WORKS BUT NEEDS SOME LOVE <span class="dashicons dashicons-welcome-add-page"></span>-->
 
                         <label for="custom_product_tabs"><?php echo $f['label']; ?></label>
+                        
                         <select style="width: 50%;" id="<?php echo $f['key']; ?>" name="<?php echo $f['key']; ?>[]" class="ajax_chosen_select_tabs" multiple="multiple" data-placeholder="<?php _e( 'Search for a custom tab&hellip;', 'AWP' ); ?>">
+                            
                             <?php                           
                                 foreach ( $this->get_custom_tabs_list() as $id => $label ) {
                                     $selected = in_array($id, $_ids)?  'selected="selected"' : '';
@@ -383,10 +449,11 @@ class AWP_Custom_Product_Tabs{
                 </div>
                 <?php
             }
+            */
             ?>
         </div>
         <?php
-        add_action('admin_footer',array($this,'ajax_footer_js')); //hook our ajax_footer_js method from before which we will use once
+        //add_action('admin_footer',array($this,'ajax_footer_js')); //hook our ajax_footer_js method from before which we will use once
     }
  
     /**
@@ -486,6 +553,11 @@ class AWP_Custom_Product_Tabs{
         //get global tabs to include with current product
         $product_tabs = get_post_meta( $post->ID, 'custom_tabs_ids', true );
         $_ids = ! empty($product_tabs  ) ? array_map( 'absint',  $product_tabs ) : null;
+        
+        // fail porque esto deberia ser array y es una string
+        var_dump($_ids);
+        var_dump($product_tabs);
+        var_dump($global_tabs);
  
         //combine global and product specific tabs and remove excluded tabs
         $_ids = array_merge((array)$_ids,(array)array_diff((array)$global_tabs_ids, (array)$exclude_tabs_ids));
