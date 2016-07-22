@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: [DEV 0.0.2] Almond Custom Product Tabs
+Plugin Name: [DEV 0.0.3] Almond Custom Product Tabs
 Plugin URI: http://almondwp.com
 Description: A plugin to add Custom product tabs for WooCommerce
-Version: 0.0.2
+Version: 0.0.3
 Author: Gabriel Maldonado
 Author URI: http://almondwp.com
 */
