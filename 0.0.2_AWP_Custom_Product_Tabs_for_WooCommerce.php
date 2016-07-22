@@ -29,7 +29,8 @@ class AWP_Custom_Product_Tabs{
      * @var string
      */
     public $id = 'awp_custom_tabs';
- 
+    
+
     /**
     * __construct
     * class constructor will set the needed filter and action hooks
@@ -41,15 +42,21 @@ class AWP_Custom_Product_Tabs{
 
 
             /* AWP DEBUG DEV */
+            /**
+            *
+            * @see awp_debug($parameter)
+            *
+            * Passes the awp_debug() function through the output of admin_head WordPress function, just for debugging purposes and information about whats happening at execution points.
+            */
             add_filter( 'admin_head', array($this, 'awp_debug'));
             
 
             //add settings tab
             add_filter( 'woocommerce_settings_tabs_array', array($this,'woocommerce_settings_tabs_array'), 50 );
             //show settings tab
-            add_action( 'woocommerce_settings_tabs_'.$this->id, array($this,'show_settings_tab' ));
+            add_action( 'woocommerce_settings_tabs_awp_custom_tabs', array($this,'show_settings_tab' ));
             //save settings tab
-            add_action( 'woocommerce_update_options_'.$this->id, array($this,'update_settings_tab' ));
+            add_action( 'woocommerce_update_options_awp_custom_tabs', array($this,'update_settings_tab' ));
  
             //add tabs select field
             /*
@@ -73,12 +80,12 @@ class AWP_Custom_Product_Tabs{
 
             Other than that you define your own custom type, providing the implementation via the woocommerce_admin_field_{field_type} action hook to display it
             */
-            add_action('woocommerce_admin_field_'.$this->post_type,array($this,'show_'.$this->post_type.'_field' ),10);
+            add_action('woocommerce_admin_field_awp_gma_tab',array($this,'show_awp_gma_tab_field' ),10);
             //save tabs select field
             /*
             woocommerce_update_option_{field_type} action hook to save its value.
             */
-            add_action( 'woocommerce_update_option_'.$this->post_type,array($this,'save_'.$this->post_type.'_field' ),10);
+            add_action( 'woocommerce_update_option_awp_gma_tab',array($this,'save_awp_gma_tab_field' ),10);
  
             //add product tab link in admin
             add_action( 'woocommerce_product_write_panel_tabs', array($this,'woocommerce_product_write_panel_tabs' ));
@@ -96,14 +103,14 @@ class AWP_Custom_Product_Tabs{
         // this is what gets called and creates the custom post type with the args on function custom_product_tabs_post_type()
         add_action( 'init', array($this,'custom_product_tabs_post_type'), 0 );
     }
-    function awp_debug(){
+
+
+    function awp_debug($parameter){
+        //$parameter_name = "$parameter";
+
         echo '<div class="wrap" style="margin-left:100px;">';
-        echo 'AWP DEBUG:' . '<br></br>';
-        
-        echo '<strong>$this: </strong>';
-        var_dump($this);
-
-
+        echo '<br><span class="dashicons dashicons-info" style="color:red;"></span><strong style="color:red;">AWP DEBUG: </strong><br>';// . $message; // . (string)$parameter_name;
+        var_dump($parameter);
         echo '</div>';
 
     }
@@ -120,28 +127,43 @@ class AWP_Custom_Product_Tabs{
     // https://docs.woothemes.com/document/settings-api/
     // a simple method to add our WooCommerce settings tab to the tabs array
     function woocommerce_settings_tabs_array( $settings_tabs ) {
-        $settings_tabs[$this->id] = __('Almond Custom Tabs','AWP');
+        $settings_tabs['awp_custom_tabs'] = __('Almond Custom Tabs','AWP');
+
+        /* Para llamar a awp_debug() no puedo desde el scope de esta funcion ya que es una funcion fuera, pero si puedo llamarla como un metodo del objeto que comprende las dos.*/
+        AWP_Custom_Product_Tabs::awp_debug($settings_tabs);
+
         return $settings_tabs;
     }
  
     /**
      * show_settings_tab
      * Used to display the WooCommerce settings tab content
+     *
+     * @see get_settings()
+     * @see woocommerce_admin_fields()
+     *
      * @return void
      */
     // woocommerce_admin_fields() accepts an array of settings fields to display
     function show_settings_tab(){
         woocommerce_admin_fields($this->get_settings());
+        // lo unico que hace es coger woocommerce_update_options y pasa las opciones, que basicamente es otra funcion, get_settings, que tiene que coger como $this-> ya que es otra funcion fuera del scope the update_settings_tab pero dentro de la clase.
     }
  
     /**
      * update_settings_tab
      * Used to save the WooCommerce settings tab values
+     *
+     * @see get_settings()
+     * @see woocommerce_admin_fields()
+     *
      * @return void
      */
     // woocommerce_update_options which accepts that same array of settings fields to save or update on submit
     function update_settings_tab(){
         woocommerce_update_options($this->get_settings());
+        // lo mismo, salva lo que este en settings, podriamos hacer dos funciones diferentes pero son los mismos campos que get_settings asi que se reaprovecha de esta manera, ambas pasan como parametro otra funcion diferente.
+
     }
  
     /**
@@ -158,31 +180,45 @@ class AWP_Custom_Product_Tabs{
                 'name'     => __('Almond Custom Tabs','AWP'),
                 'type'     => 'title',
                 'desc'     => '',
-                'id'       => 'wc_'.$this->id.'_section_title'
+                //'id'       => 'wc_'.$this->id.'_section_title' // adding .$this->id. makes it easier to reuse
+                'id'       => 'wc_awp_custom_tabs_section_title',
             ),
             'title' => array(
                 'name'     => __( 'Global Custom Tabs', 'AWP' ),
-                'type'     => $this->post_type,
+                //'type'     => $this->post_type,
+                'type'     => 'awp_gma_tab',
                 'desc'     => __( 'Start typing the Custom Tab name, Used for including custom tabs on all products.', 'AWP' ),
-                'desc_tip' => true,
+                'desc_tip' => true, // the ? simbol, tooltip
                 'default'  => '',
-                'id'       => 'wc_'.$this->id.'_globals'
+                //'id'       => 'wc_'.$this->id.'_globals',
+                'id'       => 'wc_awp_custom_tabs_globals',
             ),
             'section_end' => array(
                 'type' => 'sectionend',
                 /*
                 `sectionend` field (which tells WooCommerce its the end of our settings section and in the middle we create a custom type field with the same name of our custom tabs post type (using $this->post_type)
                 */
-                'id'   => 'wc_'.$this->id.'_section_end'
+                //'id'   => 'wc_'.$this->id.'_section_end',
+                'id'   => 'wc_awp_custom_tabs_section_end',
             )
         );
-        return apply_filters( 'wc_'.$this->id.'_settings', $settings );
+        AWP_Custom_Product_Tabs::awp_debug($settings);
+        //AWP_Custom_Product_Tabs::awp_debug($this->id);
+        //AWP_Custom_Product_Tabs::awp_debug($this::$id);
+         //awp_custom_tabs, me introduce la variable global y así no tengo que reescribirlo todas las veces. siendo $this el objeto y $id, 
+        //AWP_Custom_Product_Tabs::awp_debug($this::$id); no funciona porque $id no es static, es instance, tengo que usar ->
+
+        //return apply_filters( 'wc_'.$this->id.'_settings', $settings );
+        return apply_filters( 'wc_awp_custom_tabs_settings', $settings );
     }
  
     /**
      * show_awp_gma_tab_field
      * Used to print the settings field of the custom type awp_gma_tab
      * @param  array $field
+     *
+     * @see ajax_footer_js
+     *     
      * @return void
      */
     /*
@@ -191,15 +227,25 @@ class AWP_Custom_Product_Tabs{
     In show_awp_gma_tab_field we mimic the markup of the “Products Select Field Type” which is used by WooCommerce for selecting linked products, up sale products, cross sale products and probbly in other places as well. We do that to get the same functionality of these fields which is: you start typing the product name or id and an AJAX call is made to search the database for products with that string in the name or with that id (depends on what you are typing).
     */
     function show_awp_gma_tab_field($field){
+        /*
+        WooCommerce > Settings > Amond Custom Tabs
+        */
         global $woocommerce;
-        ?><tr valign="top">
+        ?>
+        <!-- ADDED on the top, below the <h2> -->
+        <span class="dashicons dashicons-welcome-add-page"></span>
+        
+        <tr valign="top">
             <th scope="row" class="titledesc">
+            <!-- ADDED TO Global Custom tabs text -->
+            <span class="dashicons dashicons-welcome-add-page"></span>
                 <label for="<?php echo esc_attr( $field['id'] ); ?>"><?php echo esc_html( $field['title'] ); ?></label>
                 <?php echo '<img class="help_tip" data-tip="' . esc_attr( $field['desc'] ) . '" src="' . $woocommerce->plugin_url() . '/assets/images/help.png" height="16" width="16" />'; ?>
             </th>
             <td class="forminp forminp-<?php echo sanitize_title( $field['type'] ) ?>">
                 <p class="form-field custom_product_tabs">
-                    <select id="custom_product_tabs" style="width: 50%;" name="<?php echo $field['id'];?>[]" class="ajax_chosen_select_tabs" multiple="multiple" data-placeholder="<?php _e( 'Search for a custom tab&hellip;', 'AWP' ); ?>">
+
+                    <select id="custom_product_tabs" style="width: 50%;" name="<?php echo $field['id'];?>[]" class="ajax_chosen_select_tabs" multiple="multiple" data-placeholder="<?php _e( 'Search for a custom AWP tab&hellip;', 'AWP' ); ?>">
                         <?php   
                             $tabs_ids = get_option($field['id']);
                             $_ids = ! empty( $tabs_ids ) ? array_map( 'absint',  $tabs_ids ) : array();
@@ -212,6 +258,15 @@ class AWP_Custom_Product_Tabs{
                 </p>
             </td>
         </tr><?php
+
+        AWP_Custom_Product_Tabs::awp_debug($woocommerce);
+        /* object(WooCommerce)#244 (10) { ["version"]=> string(5) "2.6.2" ["session"]=> NULL ["query"]=> object(WC_Query)#248 (1) { ["query_vars"]=> array(13) { ["order-pay"]=> string(9) "order-pay" ["order-received"]=> string(14) "order-received" ["orders"]=> string(6) "orders" ["view-order"]=> string(10) "view-order" ["downloads"]=> string(9) "downloads" ["edit-account"]=> string(12) "edit-account" ["edit-address"]=> string(12) "edit-address" ["payment-methods"]=> string(15) "payment-methods" ["lost-password"]=> string(13) "lost-password" ["customer-logout"]=> string(15) "customer-logout" ["add-payment-method"]=> string(18) "add-payment-method" ["delete-payment-method"]=> string(21) "delete-payment-method" ["set-default-payment-method"]=> string(26) "set-default-payment-method" } } ["product_factory"]=> object(WC_Product_Factory)#214 (0) { } ["countries"]=> object(WC_Countries)#219 (2) { ["locale"]=> NULL ["address_formats"]=> NULL } ["integrations"]=> object(WC_Integrations)#166 (1) { ["integrations"]=> array(0) { } } ["cart"]=> NULL ["customer"]=> NULL ["order_factory"]=> object(WC_Order_Factory)#168 (0) { } ["api"]=> object(WC_API)#249 (2) { ["server"]=> NULL ["authentication"]=> NULL } } 
+        */
+        AWP_Custom_Product_Tabs::awp_debug($woocommerce->plugin_url());
+        // string(68) "http://localhost/wordpress-core/build/wp-content/plugins/woocommerce" 
+        AWP_Custom_Product_Tabs::awp_debug($field['id']);
+        // string(26) "wc_awp_custom_tabs_globals" 
+
         /*
         We change the select tag element class attribute to ajax_chosen_select_tabs because we don’t want to search for products, we want to search for tabs. So next we need to tell WooCommerce (well not as much WooCommerce as ajaxChosen library which is included by WooCommerce) to search for tabs when we type in a name or an id and we do so by hooking another method named ajax_footer_js on line 33, so let implement that:
         */
@@ -228,17 +283,23 @@ class AWP_Custom_Product_Tabs{
     In save_awp_gma_tab_field method we simple save the value if it is posted as an option or delete the option if nothing is posted.
     */
     function save_awp_gma_tab_field($field){
+
         if (isset($_POST[$field['id']])){
             $option_value =   $_POST[$field['id']];
             update_option($field['id'],$option_value);
         }else{
             delete_option($field['id']);
         }
+        AWP_Custom_Product_Tabs::awp_debug($field['id']);
     }
  
     /**
      * ajax_footer_js
      * Used to add needed javascript to product edit screen and custom settings tab
+     *
+     * @see show_awp_gma_tab_field ()
+     * @see woocommerce_product_write_panels()
+     *
      * @return void
      */
     /*We change the select tag element class attribute to ajax_chosen_select_tabs because we don’t want to search for products, we want to search for tabs. So next we need to tell WooCommerce (well not as much WooCommerce as ajaxChosen library which is included by WooCommerce) to search for tabs when we type in a name or an id and we do so by hooking another method named ajax_footer_js on line 33, so let implement that:
@@ -251,6 +312,8 @@ class AWP_Custom_Product_Tabs{
         jQuery(document).ready(function($){
             // Ajax Chosen Product Selectors
             jQuery("select.ajax_chosen_select_tabs").select2({});
+            // class ajax_chosen_select_tabs in woocommerce_product_write_panels()
+            // select2 -> jquery for selecting https://select2.github.io/examples.html
         });
         </script>
         <?php
@@ -265,6 +328,7 @@ class AWP_Custom_Product_Tabs{
     function woocommerce_product_write_panel_tabs(){
         ?>
         <li class="custom_tab">
+            <!--<span class="dashicons dashicons-welcome-add-page"></span>-->
             <a href="#custom_tab_data_ctabs">
                 <?php _e('Custom Tabs', 'AWP'); ?>
             </a>
@@ -303,6 +367,9 @@ class AWP_Custom_Product_Tabs{
                 ?>
                 <div class="options_group">
                     <p class="form-field custom_product_tabs">
+                    
+                    <!--WORKS BUT NEEDS SOME LOVE <span class="dashicons dashicons-welcome-add-page"></span>-->
+
                         <label for="custom_product_tabs"><?php echo $f['label']; ?></label>
                         <select style="width: 50%;" id="<?php echo $f['key']; ?>" name="<?php echo $f['key']; ?>[]" class="ajax_chosen_select_tabs" multiple="multiple" data-placeholder="<?php _e( 'Search for a custom tab&hellip;', 'AWP' ); ?>">
                             <?php                           
@@ -352,7 +419,7 @@ class AWP_Custom_Product_Tabs{
         header( 'Content-Type: application/json; charset=utf-8' );//define the response header
         $term = (string) urldecode(stripslashes(strip_tags($_GET['term'])));//sanitize the search term
         if (empty($term)) die();//check that its not empty 
-        $post_types = array($this->post_type); //check if the search term is numeric then we threat it as a tab id and we search for custom product tabs with that id, if its not numeric we search for custom product tabs with that string
+        $post_types = array('awp_gma_tab'); //check if the search term is numeric then we threat it as a tab id and we search for custom product tabs with that id, if its not numeric we search for custom product tabs with that string
         if ( is_numeric( $term ) ) {
             //by tab id
             $args = array(
@@ -407,8 +474,9 @@ class AWP_Custom_Product_Tabs{
     //implement the woocommerce_product_tabs method which is hooked to the woocommerce_product_tabs filter hook. displaying the custom product tabs
     function woocommerce_product_tabs($tabs){
         global $post;
+        //AWP_Custom_Product_Tabs::awp_debug($this->post);
         //get global tabs
-        $global_tabs = get_option('wc_'.$this->id.'_globals');
+        $global_tabs = get_option('wc_awp_custom_tabs_globals');
         $global_tabs_ids = ! empty( $global_tabs ) ? array_map( 'absint',  $global_tabs ) : array();
  
         //get global tabs to exclude from this product
@@ -421,7 +489,7 @@ class AWP_Custom_Product_Tabs{
  
         //combine global and product specific tabs and remove excluded tabs
         $_ids = array_merge((array)$_ids,(array)array_diff((array)$global_tabs_ids, (array)$exclude_tabs_ids));
- 
+        //AWP_Custom_Product_Tabs::awp_debug($global_tabs);
         if ($_ids){
             //fix order
             $_ids = array_reverse($_ids);
@@ -439,18 +507,24 @@ class AWP_Custom_Product_Tabs{
             	}
             }
         }
+
         return $tabs;
     }
+
  
     /**
      * render_tab
      * Used to render tabs on product view page
+     *
+     * @see woocommerce_product_tabs()
+     *
      * @param  string $key
      * @param  array  $tab
      * @return void
      */
     function render_tab($key,$tab){
         global $post;
+        //echo '<span class="dashicons dashicons-welcome-add-page"></span>';
         echo '<h2>'.apply_filters('AWP_custom_tab_title',$tab['title'],$tab,$key).'</h2>';
         echo apply_filters('AWP_custom_tab_content',$tab['content'],$tab,$key);
     }
@@ -463,20 +537,20 @@ class AWP_Custom_Product_Tabs{
     // easier point to start, the end, we create our "custom tab" custom post type -> https://generatewp.com/post-type/, creates admin > products > product tabs
     function custom_product_tabs_post_type() {
         $labels = array(
-            'name'                => _x( 'Product Tabs', 'Post Type General Name', 'AWP' ),
-            'singular_name'       => _x( 'Product Tab', 'Post Type Singular Name', 'AWP' ),
+            'name'                => _x( 'AWP Product Tabs', 'Post Type General Name', 'AWP' ),
+            'singular_name'       => _x( 'AWP Product Tab', 'Post Type Singular Name', 'AWP' ),
             'menu_name'           => __( 'product Tabs', 'AWP' ),
             'parent_item_colon'   => __( '', 'AWP' ),
-            'all_items'           => __( 'Product Tabs', 'AWP' ),
+            'all_items'           => __( 'AWP Product Tabs', 'AWP' ),
             'view_item'           => __( '', 'AWP' ),
-            'add_new_item'        => __( 'Add Product Tab', 'AWP' ),
-            'add_new'             => __( 'Add New', 'AWP' ),
-            'edit_item'           => __( 'Edit Product Tab', 'AWP' ),
-            'update_item'         => __( 'Update Product Tab', 'AWP' ),
-            'search_items'        => __( 'Search Product Tab', 'AWP' ),
-            'not_found'           => __( 'Not found', 'AWP' ),
-            'not_found_in_trash'  => __( 'Not found in Trash', 'AWP' ),
-            /* 
+            'add_new_item'        => __( 'Add AWP Product Tab', 'AWP' ),
+            'add_new'             => __( 'Add New AWP Product Tab', 'AWP' ),
+            'edit_item'           => __( 'Edit AWP Product Tab', 'AWP' ),
+            'update_item'         => __( 'Update AWP Product Tab', 'AWP' ),
+            'search_items'        => __( 'Search AWP Product Tab', 'AWP' ),
+            'not_found'           => __( 'AWP Product Tab not found', 'AWP' ),
+            'not_found_in_trash'  => __( 'AWP Product Tab not found in Trash', 'AWP' ),
+            /*
             _x()
             Quite a few times, there will be collisions with similar translatable text found in more than two places, but with different translated context.
             By including the context in the pot file, translators can translate the two strings differently.
@@ -510,6 +584,7 @@ class AWP_Custom_Product_Tabs{
     }
 
     function post_exists($post_id){
+
     	return is_string(get_post_status( $post_id ) );
     }
 
@@ -520,7 +595,7 @@ class AWP_Custom_Product_Tabs{
      */
     function get_custom_tabs_list(){
         $args = array(
-            'post_type'      => array($this->post_type),
+            'post_type'      => array('awp_gma_tab'),
             'post_status'    => 'publish',
             'posts_per_page' => -1,
             'fields'         => 'ids'
