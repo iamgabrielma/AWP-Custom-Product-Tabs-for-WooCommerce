@@ -202,11 +202,14 @@ class AWP_Custom_Product_Tabs{
  
     /**
      * save_awp_gma_tab_field
-     * Used to save the settings field of the custom type awp_gma_tab
+     * Updates the settings of the custom tab
+     * 
+     * @see update_option() WordPress function that updates a named value/pair to the options database table.
+     * @see delete_option() WordPress function that deletes a named value/pair to the options database table.
      * 
      * @param  array $field
      * 
-     * @return void
+     * @return void 
      */
 
     function save_awp_gma_tab_field($field){
@@ -222,6 +225,7 @@ class AWP_Custom_Product_Tabs{
     /**
      * woocommerce_product_write_panel_tabs
      * Used to add a product custom tab to product edit screen
+     * 
      * @return void
      */
     function woocommerce_product_write_panel_tabs(){
@@ -238,6 +242,12 @@ class AWP_Custom_Product_Tabs{
     /**
      * woocommerce_product_write_panels
      * Used to display a product custom tab content (fields) to product edit screen
+     * 
+     * @global $post 
+     * @global $woocommerce
+     * 
+     * @see get_post_meta() Retrieve post meta field for a post.
+     * @see get_custom_tabs_list() 
      * 
      * @return void
      */
@@ -369,6 +379,8 @@ class AWP_Custom_Product_Tabs{
      * woocommerce_product_tabs
      * Used to add tabs to product view page
      * 
+     * @global post
+     * 
      * @param  array $tabs
      * 
      * @return array
@@ -386,11 +398,6 @@ class AWP_Custom_Product_Tabs{
         //get global tabs to include with current product
         $product_tabs = get_post_meta( $post->ID, 'custom_tabs_ids', true );
         $_ids = ! empty($product_tabs  ) ? array_map( 'absint',  $product_tabs ) : null;
-        
-        // fail porque esto deberia ser array y es una string
-        var_dump($_ids);
-        var_dump($product_tabs);
-        var_dump($global_tabs);
  
         //combine global and product specific tabs and remove excluded tabs
         $_ids = array_merge((array)$_ids,(array)array_diff((array)$global_tabs_ids, (array)$exclude_tabs_ids));
@@ -486,8 +493,6 @@ class AWP_Custom_Product_Tabs{
 
     /**
      * get_custom_tabs_list
-     * 
-     * @since 1.2
      * 
      * @return array
      */
