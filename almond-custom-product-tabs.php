@@ -6,12 +6,15 @@ Description: A plugin that allows you to add customized product tabs to your pro
 Version: 0.0.3
 Author: Gabriel Maldonado
 Author URI: http://almondwp.com
+Text Domain: almond-custom-product-tabs
 */
 
 // Terminate the script if accessed outside of WordPress
 if(!defined('ABSPATH')){
 	exit;
 }
+
+//add_action( 'admin_notices', 'sample_admin_notice__error' );
 
 /**
 *
@@ -82,7 +85,7 @@ class AWP_Custom_Product_Tabs{
      */
     function woocommerce_settings_tabs_array( $settings_tabs ) {
         
-        $settings_tabs['awp_custom_tabs'] = __('Almond Custom Tabs','AWP');
+        $settings_tabs['awp_custom_tabs'] = __('Almond Custom Tabs','almond-custom-product-tabs');
         return $settings_tabs;
         
     }
@@ -129,15 +132,15 @@ class AWP_Custom_Product_Tabs{
     function get_settings(){
         $settings = array(
             'section_title' => array(
-                'name'     => __('Almond Custom Tabs','AWP'),
+                'name'     => __('Almond Custom Tabs','almond-custom-product-tabs'),
                 'type'     => 'title',
                 'desc'     => '',
                 'id'       => 'wc_awp_custom_tabs_section_title',
             ),
             'title' => array(
-                'name'     => __( 'Global Custom Tabs', 'AWP' ),
+                'name'     => __( 'Global Custom Tabs', 'almond-custom-product-tabs' ),
                 'type'     => 'awp_gma_tab',
-                'desc'     => __( 'Start typing the Custom Tab name, Used for including custom tabs on all products.', 'AWP' ),
+                'desc'     => __( 'Start typing the Custom Tab name, Used for including custom tabs on all products.', 'almond-custom-product-tabs' ),
                 'desc_tip' => true,
                 'default'  => '',
                 'id'       => 'wc_awp_custom_tabs_globals',
@@ -233,7 +236,7 @@ class AWP_Custom_Product_Tabs{
         <li class="custom_tab">
            <span class="dashicons dashicons-welcome-add-page"></span>
             <a href="#custom_tab_data_ctabs">
-                <?php _e('Custom Tabs', 'AWP'); ?>
+                <?php _e('Custom Tabs', 'almond-custom-product-tabs'); ?>
             </a>
         </li>
         <?php
@@ -256,13 +259,13 @@ class AWP_Custom_Product_Tabs{
         $fields = array(
             array(
                 'key'   => 'custom_tabs_ids',
-                'label' => __( 'Select Custom Tabs', 'AWP' ),
-                'desc'  => __( 'Start typing the Custom Tab name, Used for including custom tabs.', 'AWP' )
+                'label' => __( 'Select Custom Tabs', 'almond-custom-product-tabs' ),
+                'desc'  => __( 'Start typing the Custom Tab name, Used for including custom tabs.', 'almond-custom-product-tabs' )
             ),
             array(
                 'key'   => 'exclude_custom_tabs_ids',
-                'label' => __( 'Select Global Tabs to exclude', 'AWP' ),
-                'desc'  => __( 'Start typing the Custom Tab name. used for excluding global tabs.', 'AWP' )
+                'label' => __( 'Select Global Tabs to exclude', 'almond-custom-product-tabs' ),
+                'desc'  => __( 'Start typing the Custom Tab name. used for excluding global tabs.', 'almond-custom-product-tabs' )
             )
         );
         ?>
@@ -450,23 +453,23 @@ class AWP_Custom_Product_Tabs{
      */
     function custom_product_tabs_post_type() {
         $labels = array(
-            'name'                => _x( 'AWP Product Tabs', 'Post Type General Name', 'AWP' ),
-            'singular_name'       => _x( 'AWP Product Tab', 'Post Type Singular Name', 'AWP' ),
-            'menu_name'           => __( 'product Tabs', 'AWP' ),
-            'parent_item_colon'   => __( '', 'AWP' ),
-            'all_items'           => __( 'AWP Product Tabs', 'AWP' ),
-            'view_item'           => __( '', 'AWP' ),
-            'add_new_item'        => __( 'Add AWP Product Tab', 'AWP' ),
-            'add_new'             => __( 'Add New AWP Product Tab', 'AWP' ),
-            'edit_item'           => __( 'Edit AWP Product Tab', 'AWP' ),
-            'update_item'         => __( 'Update AWP Product Tab', 'AWP' ),
-            'search_items'        => __( 'Search AWP Product Tab', 'AWP' ),
-            'not_found'           => __( 'AWP Product Tab not found', 'AWP' ),
-            'not_found_in_trash'  => __( 'AWP Product Tab not found in Trash', 'AWP' ),
+            'name'                => _x( 'AWP Product Tabs', 'Post Type General Name', 'almond-custom-product-tabs' ),
+            'singular_name'       => _x( 'AWP Product Tab', 'Post Type Singular Name', 'almond-custom-product-tabs' ),
+            'menu_name'           => __( 'product Tabs', 'almond-custom-product-tabs' ),
+            'parent_item_colon'   => __( '', 'almond-custom-product-tabs' ),
+            'all_items'           => __( 'AWP Product Tabs', 'almond-custom-product-tabs' ),
+            'view_item'           => __( '', 'almond-custom-product-tabs' ),
+            'add_new_item'        => __( 'Add AWP Product Tab', 'almond-custom-product-tabs' ),
+            'add_new'             => __( 'Add New AWP Product Tab', 'almond-custom-product-tabs' ),
+            'edit_item'           => __( 'Edit AWP Product Tab', 'almond-custom-product-tabs' ),
+            'update_item'         => __( 'Update AWP Product Tab', 'almond-custom-product-tabs' ),
+            'search_items'        => __( 'Search AWP Product Tab', 'almond-custom-product-tabs' ),
+            'not_found'           => __( 'AWP Product Tab not found', 'almond-custom-product-tabs' ),
+            'not_found_in_trash'  => __( 'AWP Product Tab not found in Trash', 'almond-custom-product-tabs' ),
         );
         $args = array(
-            'label'               => __( 'Product Tabs', 'AWP' ),
-            'description'         => __( 'Custom Product Tabs', 'AWP' ),
+            'label'               => __( 'Product Tabs', 'almond-custom-product-tabs' ),
+            'description'         => __( 'Custom Product Tabs', 'almond-custom-product-tabs' ),
             'labels'              => $labels,
             'supports'            => array( 'title', 'editor', 'custom-fields' ),
             'hierarchical'        => false,
@@ -515,7 +518,35 @@ class AWP_Custom_Product_Tabs{
 
 // Create the instance of the main class if WooComerce is active, return a message to activate it otherwise.
 if(in_array('woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' )) )){
-	new AWP_Custom_Product_Tabs();	
+ 	new AWP_Custom_Product_Tabs();	
 } else {
-	echo 'You need to activate WooCommerce before using this plugin.';
+
+    //sample_admin_notice__error();
+    add_action( 'admin_init', 'my_plugin_deactivate' );
+    add_action( 'admin_notices', 'my_plugin_admin_notice' );
+
+    function my_plugin_deactivate() {
+              deactivate_plugins( plugin_basename( __FILE__ ) );
+          }
+    function  my_plugin_admin_notice(){
+        $class = 'notice notice-error';
+        $message = __( 'You need to activate WooCommerce before using Almond Custom Product Tabs.', 'almond-custom-product-tabs' );
+
+        printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message ); 
+
+        // deactivates defaud plugin activated
+        if (isset($_GET['activate'])) {
+            unset($_GET['activate']);
+        }       
+    }
+
 }
+
+//function sample_admin_notice__error() {
+    // $class = 'notice notice-error';
+    // $message = __( 'You need to activate WooCommerce before using this plugin.', 'almond-custom-product-tabs' );
+
+    // printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message );
+    //deactivate_plugins( plugin_basename( __FILE__ ) );
+    //wp_die( );
+//}
