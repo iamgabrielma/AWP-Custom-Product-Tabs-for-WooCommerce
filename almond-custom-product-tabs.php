@@ -380,11 +380,21 @@ class AWP_Custom_Product_Tabs{
  
     /**
      * woocommerce_product_tabs
-     * Used to add tabs to product view page
+     * Used to add custom tabs to product view page
      * 
      * @global post
      * 
      * @param  array $tabs
+     *
+     * @see get_option()
+     * @see get_post_meta()
+     *
+     * @see post_exists()
+     * @see render_tab()
+     *
+     * @see get_the_title()
+     * @see apply_filters()
+     * @see get_post_field()
      * 
      * @return array
      */
@@ -393,23 +403,31 @@ class AWP_Custom_Product_Tabs{
         //get global tabs
         $global_tabs = get_option('wc_awp_custom_tabs_globals');
         $global_tabs_ids = ! empty( $global_tabs ) ? array_map( 'absint',  $global_tabs ) : array();
+        /* Print debug on the product description*/
+        $this->awp_debug($global_tabs_ids);
  
         //get global tabs to exclude from this product
         $exclude_tabs = get_post_meta( $post->ID, 'exclude_custom_tabs_ids', true );
         $exclude_tabs_ids = ! empty($exclude_tabs  ) ? array_map( 'absint',  $exclude_tabs ) : array();
- 
+        $this->awp_debug($exclude_tabs_ids);
+
         //get global tabs to include with current product
         $product_tabs = get_post_meta( $post->ID, 'custom_tabs_ids', true );
         $_ids = ! empty($product_tabs  ) ? array_map( 'absint',  $product_tabs ) : null;
+        
+        $this->awp_debug($product_tabs);
+        $this->awp_debug($_ids);
  
         //combine global and product specific tabs and remove excluded tabs
         $_ids = array_merge((array)$_ids,(array)array_diff((array)$global_tabs_ids, (array)$exclude_tabs_ids));
+
         //AWP_Custom_Product_Tabs::awp_debug($global_tabs);
         if ($_ids){
             //fix order
             $_ids = array_reverse($_ids);
             //loop over tabs and add them
             foreach ($_ids as $id) {
+                // if a post exist for this id, then...
             	if ($this->post_exists($id)){
 					$display_title = get_post_meta($id,'tab_display_title',true);
 					$priority      = get_post_meta($id,'tab_priority',true);
@@ -440,7 +458,9 @@ class AWP_Custom_Product_Tabs{
      */
     function render_tab($key,$tab){
         global $post;
+        // added dashicon to test tab tab
         echo '<span class="dashicons dashicons-welcome-add-page"></span>';
+        // 
         echo '<h2>'.apply_filters('AWP_custom_tab_title',$tab['title'],$tab,$key).'</h2>';
         echo apply_filters('AWP_custom_tab_content',$tab['content'],$tab,$key);
     }
@@ -489,7 +509,18 @@ class AWP_Custom_Product_Tabs{
         register_post_type( 'awp_gma_tab', $args );
     }
 
+    /**
+    * Check if the post exists
+    *
+    * 
+    * @see get_post_status retrieve the post status based on the post id
+    * @see is_string($var) boolean True if $var is string, false otherwise
+    *
+    * @return boolean True if post status is string, false otherwise.
+    */
     function post_exists($post_id){
+        /* post exist, with an id of $post_id*/
+        $this->awp_debug($post_id);
 
     	return is_string(get_post_status( $post_id ) );
     }
