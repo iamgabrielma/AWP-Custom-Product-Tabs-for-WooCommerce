@@ -14,6 +14,10 @@ if(!defined('ABSPATH')){
 	exit;
 }
 
+
+
+
+
 //add_action( 'admin_notices', 'sample_admin_notice__error' );
 
 /**
@@ -39,6 +43,7 @@ class AWP_Custom_Product_Tabs{
         if (is_admin()){
 
             add_filter( 'admin_head', array($this, 'awp_debug'));
+            add_action('admin_menu', array($this, 'awp_cpt_script'));
             
             add_filter( 'woocommerce_settings_tabs_array', array($this,'woocommerce_settings_tabs_array'), 50 );
             add_action( 'woocommerce_settings_tabs_awp_custom_tabs', array($this,'show_settings_tab' ));
@@ -59,6 +64,12 @@ class AWP_Custom_Product_Tabs{
 
         add_action('wp_ajax_woocommerce_json_custom_tabs', array($this,'woocommerce_json_custom_tabs'));
         add_action( 'init', array($this,'custom_product_tabs_post_type'), 0 );
+    }
+    
+    function awp_cpt_script() {
+
+        wp_enqueue_script( 'awp-cpt-script', plugin_dir_url( __FILE__ ) . '/js/awp-cpt-script.js', array('jquery'), '1.0.0', true );
+
     }
 	
 	/**
@@ -259,13 +270,13 @@ class AWP_Custom_Product_Tabs{
         $fields = array(
             array(
                 'key'   => 'custom_tabs_ids',
-                'label' => __( 'Select Custom Tabs', 'almond-custom-product-tabs' ),
-                'desc'  => __( 'Start typing the Custom Tab name, Used for including custom tabs.', 'almond-custom-product-tabs' )
+                'label' => __( 'Selected Custom Tabs', 'almond-custom-product-tabs' ),
+                'desc'  => __( 'Used for including custom tabs. Multiple selection allowed.', 'almond-custom-product-tabs' )
             ),
             array(
                 'key'   => 'exclude_custom_tabs_ids',
-                'label' => __( 'Select Global Tabs to exclude', 'almond-custom-product-tabs' ),
-                'desc'  => __( 'Start typing the Custom Tab name. used for excluding global tabs.', 'almond-custom-product-tabs' )
+                'label' => __( 'Selected Global Tabs to exclude', 'almond-custom-product-tabs' ),
+                'desc'  => __( 'Used for excluding global tabs.Multiple selection allowed.', 'almond-custom-product-tabs' )
             )
         );
         ?>
@@ -276,22 +287,22 @@ class AWP_Custom_Product_Tabs{
                 $tabs_ids = get_post_meta( $post->ID, $field['key'], true );
                 $_ids = ! empty( $tabs_ids ) ? array_map( 'absint',  $tabs_ids ) : array();
                 ?>
-                    <div class="">
-                        <p class="">
-                            <?php echo $field['label']; ?>
-                            <select multiple="multiple" name="<?php echo $field['key']; ?>[]">
+                    <div class="options_group">
+                        <p class="form-field">
+                            <label><?php echo $field['label']; ?></label>
+                            <select class="" multiple="multiple" name="<?php echo $field['key']; ?>[]">
                                 <?php 
 
                                     foreach ($this->get_custom_tabs_list() as $id => $label) {
                                         $selected = in_array($id, $_ids)?  'selected="selected"' : '';
-                                        echo '<option value="' . $id . '" ' . $selected . ' >' . $label . '</option>';
+                                        echo '<option class="awp-selected-option" value="' . $id . '" ' . $selected . ' >' . $label . '</option>';
 
                                     }
 
 
                                 ?>   
                             </select>
-                            
+                            <div class="test-div"></div>
                         </p>
                     </div>
                 <?php
@@ -454,15 +465,21 @@ class AWP_Custom_Product_Tabs{
      * @param  string $key
      * @param  array  $tab
      * 
-     * @return void
+     * @return html
      */
     function render_tab($key,$tab){
         global $post;
         // added dashicon to test tab tab
-        echo '<span class="dashicons dashicons-welcome-add-page"></span>';
+        //echo '<span class="dashicons dashicons-welcome-add-page"></span>';
         // 
-        echo '<h2>'.apply_filters('AWP_custom_tab_title',$tab['title'],$tab,$key).'</h2>';
+        echo '<h2>';
+        echo '<span class="dashicons dashicons-welcome-add-page"></span>'.apply_filters('AWP_custom_tab_title',$tab['title'],$tab,$key).'</h2>';
         echo apply_filters('AWP_custom_tab_content',$tab['content'],$tab,$key);
+
+        /* Lo que imprimo aqui sale en test tab asi que es comodo para debug */
+        echo 'found_tabs:';
+        var_dump(AWP_Custom_Product_Tabs::get_custom_tabs_list());
+
     }
  
     /**
@@ -526,9 +543,11 @@ class AWP_Custom_Product_Tabs{
     }
 
     /**
+     *
+     * Returns the custom tabs created by the user
      * get_custom_tabs_list
      * 
-     * @return array
+     * @return $found_tabs array Custom tabs created by the user and associated to its post ID
      */
     function get_custom_tabs_list(){
         $args = array(
@@ -544,6 +563,7 @@ class AWP_Custom_Product_Tabs{
             $found_tabs[ $post_id ] = get_the_title($post_id);
         }
         return $found_tabs;
+        /* devuelve las tablas creadas, string test tab asociada a id 87*/
     }
 }//end AWP_Custom_Product_Tabs class.
 
