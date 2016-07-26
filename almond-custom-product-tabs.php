@@ -14,6 +14,15 @@ if(!defined('ABSPATH')){
 	exit;
 }
 
+/* WIP LINK ON ACTIVATION */
+function show_awp_custom_product_tabs_link_on_activation($plugin_links) {
+        
+    $plugin_links[] = '<a href="' . get_site_url() . '/wp-admin/admin.php?page=wc-settings&tab=awp_custom_tabs' . '">Settings</a>';
+    //$plugin_links[] = 'Settings';
+    $plugin_links[] = '<a href="http://almondwp.com" target="_blank">More plugins by AlmondWP</a>';
+    return $plugin_links;
+}
+add_filter("plugin_action_links_".plugin_basename(__FILE__), 'show_awp_custom_product_tabs_link_on_activation', 10, 5);
 
 
 
@@ -62,7 +71,7 @@ class AWP_Custom_Product_Tabs{
             add_filter( 'woocommerce_product_tabs', array($this,'woocommerce_product_tabs') );
         }
 
-        add_action('wp_ajax_woocommerce_json_custom_tabs', array($this,'woocommerce_json_custom_tabs'));
+        //add_action('wp_ajax_woocommerce_json_custom_tabs', array($this,'woocommerce_json_custom_tabs'));
         add_action( 'init', array($this,'custom_product_tabs_post_type'), 0 );
     }
     
@@ -151,15 +160,29 @@ class AWP_Custom_Product_Tabs{
             'title' => array(
                 'name'     => __( 'Global Custom Tabs', 'almond-custom-product-tabs' ),
                 'type'     => 'awp_gma_tab',
-                'desc'     => __( 'Start typing the Custom Tab name, Used for including custom tabs on all products.', 'almond-custom-product-tabs' ),
+                'desc'     => __( 'Used for including custom tabs on all products.', 'almond-custom-product-tabs' ),
                 'desc_tip' => true,
                 'default'  => '',
                 'id'       => 'wc_awp_custom_tabs_globals',
             ),
+            'another_section' => array(
+                'name'     => __( 'Test tab', 'almond-custom-product-tabs' ),
+                'type'     => 'text',
+                //'desc'     => __( 'Used for including custom tabs on all products.', 'almond-custom-product-tabs' ),
+                //'desc_tip' => true,
+                'default'  => '',
+                'id'       => 'wc_awp_custom_test',
+
+            ),
             'section_end' => array(
                 'type' => 'sectionend',
                 'id'   => 'wc_awp_custom_tabs_section_end',
-            )
+            ),
+            // 'title' => array(
+            //     'name'  => __('TEST SECTION', 'almond-custom-product-tabs' ),
+            //     'type' => 'title',
+            //     'id'       => 'wc_awp_custom_section_test',
+            // ),
         );
 
         return apply_filters( 'wc_awp_custom_tabs_settings', $settings );
@@ -179,10 +202,10 @@ class AWP_Custom_Product_Tabs{
         ?>
         
         <form method="post">
-        <span class="dashicons dashicons-welcome-add-page"></span>
+        <!--<span class="dashicons dashicons-welcome-add-page"></span>-->
         <tr valign="top">
             <th scope="row" class="titledesc">
-            <span class="dashicons dashicons-welcome-add-page"></span>
+            <!--<span class="dashicons dashicons-welcome-add-page"></span>-->
                 <label for="<?php echo esc_attr( $field['id'] ); ?>"><?php echo esc_html( $field['title'] ); ?></label>
                 <?php echo '<img class="help_tip" data-tip="' . esc_attr( $field['desc'] ) . '" src="' . $woocommerce->plugin_url() . '/assets/images/help.png" height="16" width="16" />'; ?>
             </th>
@@ -245,9 +268,9 @@ class AWP_Custom_Product_Tabs{
     function woocommerce_product_write_panel_tabs(){
         ?>
         <li class="custom_tab">
-           <span class="dashicons dashicons-welcome-add-page"></span>
+           <!--<span class="dashicons dashicons-welcome-add-page"></span>-->
             <a href="#custom_tab_data_ctabs">
-                <?php _e('Custom Tabs', 'almond-custom-product-tabs'); ?>
+                <?php _e('AWP Custom Tabs', 'almond-custom-product-tabs'); ?>
             </a>
         </li>
         <?php
@@ -270,12 +293,12 @@ class AWP_Custom_Product_Tabs{
         $fields = array(
             array(
                 'key'   => 'custom_tabs_ids',
-                'label' => __( 'Selected Custom Tabs', 'almond-custom-product-tabs' ),
+                'label' => __( 'Global Custom Tabs to display', 'almond-custom-product-tabs' ),
                 'desc'  => __( 'Used for including custom tabs. Multiple selection allowed.', 'almond-custom-product-tabs' )
             ),
             array(
                 'key'   => 'exclude_custom_tabs_ids',
-                'label' => __( 'Selected Global Tabs to exclude', 'almond-custom-product-tabs' ),
+                'label' => __( 'Global Custom Tabs to exclude', 'almond-custom-product-tabs' ),
                 'desc'  => __( 'Used for excluding global tabs.Multiple selection allowed.', 'almond-custom-product-tabs' )
             )
         );
@@ -290,19 +313,20 @@ class AWP_Custom_Product_Tabs{
                     <div class="options_group">
                         <p class="form-field">
                             <label><?php echo $field['label']; ?></label>
-                            <select class="" multiple="multiple" name="<?php echo $field['key']; ?>[]">
+                            <select class="<?php echo $field['key']?>" multiple="multiple" name="<?php echo $field['key']; ?>[]">
                                 <?php 
 
                                     foreach ($this->get_custom_tabs_list() as $id => $label) {
                                         $selected = in_array($id, $_ids)?  'selected="selected"' : '';
-                                        echo '<option class="awp-selected-option" value="' . $id . '" ' . $selected . ' >' . $label . '</option>';
+                                        echo '<option class="'. $field['key'] .'" value="' . $id . '" ' . $selected . ' >' . $label . '</option>';
 
                                     }
 
 
                                 ?>   
                             </select>
-                            <div class="test-div"></div>
+                            <!-- same class but unique identifier -->
+                            <div class="test-div" id="<?php echo $field['key']; ?>"></div>
                         </p>
                     </div>
                 <?php
@@ -338,56 +362,56 @@ class AWP_Custom_Product_Tabs{
      * 
      * @return void
      */
-    function woocommerce_json_custom_tabs(){
-        check_ajax_referer( 'search-products-tabs', 'security' );//we validate the request to prevent processing requests external of the site using check_ajax_referer
-        header( 'Content-Type: application/json; charset=utf-8' );//define the response header
-        $term = (string) urldecode(stripslashes(strip_tags($_GET['term'])));//sanitize the search term
-        if (empty($term)) die();//check that its not empty 
-        $post_types = array('awp_gma_tab'); //check if the search term is numeric then we threat it as a tab id and we search for custom product tabs with that id, if its not numeric we search for custom product tabs with that string
-        if ( is_numeric( $term ) ) {
-            //by tab id
-            $args = array(
-                'post_type'      => $post_types,
-                'post_status'    => 'publish',
-                'posts_per_page' => -1,
-                'post__in'       => array(0, $term),
-                'fields'         => 'ids'
-            );
+    // function woocommerce_json_custom_tabs(){
+    //     check_ajax_referer( 'search-products-tabs', 'security' );//we validate the request to prevent processing requests external of the site using check_ajax_referer
+    //     header( 'Content-Type: application/json; charset=utf-8' );//define the response header
+    //     $term = (string) urldecode(stripslashes(strip_tags($_GET['term'])));//sanitize the search term
+    //     if (empty($term)) die();//check that its not empty 
+    //     $post_types = array('awp_gma_tab'); //check if the search term is numeric then we threat it as a tab id and we search for custom product tabs with that id, if its not numeric we search for custom product tabs with that string
+    //     if ( is_numeric( $term ) ) {
+    //         //by tab id
+    //         $args = array(
+    //             'post_type'      => $post_types,
+    //             'post_status'    => 'publish',
+    //             'posts_per_page' => -1,
+    //             'post__in'       => array(0, $term),
+    //             'fields'         => 'ids'
+    //         );
  
-            $args2 = array(
-                'post_type'      => $post_types,
-                'post_status'    => 'publish',
-                'posts_per_page' => -1,
-                'post_parent'    => $term,
-                'fields'         => 'ids'
-            );
+    //         $args2 = array(
+    //             'post_type'      => $post_types,
+    //             'post_status'    => 'publish',
+    //             'posts_per_page' => -1,
+    //             'post_parent'    => $term,
+    //             'fields'         => 'ids'
+    //         );
  
-            $posts = array_unique(array_merge( get_posts( $args ), get_posts( $args2 )));
+    //         $posts = array_unique(array_merge( get_posts( $args ), get_posts( $args2 )));
  
-        } else {
-            //by name
-            $args = array(
-                'post_type'      => $post_types,
-                'post_status'    => 'publish',
-                'posts_per_page' => -1,
-                's'              => $term,
-                'fields'         => 'ids'
-            );
-            $posts = array_unique( get_posts( $args ) );
-        }
-        //format the found tabs in array of tab id => tab title printout a json encoded version of that array and die() to end the ajax request.
-        $found_tabs = array();
+    //     } else {
+    //         //by name
+    //         $args = array(
+    //             'post_type'      => $post_types,
+    //             'post_status'    => 'publish',
+    //             'posts_per_page' => -1,
+    //             's'              => $term,
+    //             'fields'         => 'ids'
+    //         );
+    //         $posts = array_unique( get_posts( $args ) );
+    //     }
+    //     //format the found tabs in array of tab id => tab title printout a json encoded version of that array and die() to end the ajax request.
+    //     $found_tabs = array();
  
-        if ( $posts ) foreach ( $posts as $post_id ) {
+    //     if ( $posts ) foreach ( $posts as $post_id ) {
  
-            $found_tabs[ $post_id ] = get_the_title($post_id);
-        }
+    //         $found_tabs[ $post_id ] = get_the_title($post_id);
+    //     }
          
-        $found_tabs = apply_filters( 'woocommerce_json_search_found_tabs', $found_tabs );
-        echo json_encode( $found_tabs );
+    //     $found_tabs = apply_filters( 'woocommerce_json_search_found_tabs', $found_tabs );
+    //     echo json_encode( $found_tabs );
  
-        die();
-    }
+    //     die();
+    // }
  
     /**
      * woocommerce_product_tabs
@@ -397,20 +421,19 @@ class AWP_Custom_Product_Tabs{
      * 
      * @param  array $tabs
      *
-     * @see get_option()
-     * @see get_post_meta()
      *
      * @see post_exists()
      * @see render_tab()
-     *
-     * @see get_the_title()
-     * @see apply_filters()
-     * @see get_post_field()
+     * @see get_settings() 
      * 
      * @return array
      */
     function woocommerce_product_tabs($tabs){
         global $post;
+
+        // TESTING NEW SECTIONS ON SETTINGS MENU
+        $new_section = get_option('wc_awp_custom_test');
+
         //get global tabs
         $global_tabs = get_option('wc_awp_custom_tabs_globals');
         $global_tabs_ids = ! empty( $global_tabs ) ? array_map( 'absint',  $global_tabs ) : array();
@@ -472,13 +495,12 @@ class AWP_Custom_Product_Tabs{
         // added dashicon to test tab tab
         //echo '<span class="dashicons dashicons-welcome-add-page"></span>';
         // 
-        echo '<h2>';
-        echo '<span class="dashicons dashicons-welcome-add-page"></span>'.apply_filters('AWP_custom_tab_title',$tab['title'],$tab,$key).'</h2>';
+        echo '<h2>'.apply_filters('AWP_custom_tab_title',$tab['title'],$tab,$key).'</h2>';
         echo apply_filters('AWP_custom_tab_content',$tab['content'],$tab,$key);
 
         /* Lo que imprimo aqui sale en test tab asi que es comodo para debug */
-        echo 'found_tabs:';
-        var_dump(AWP_Custom_Product_Tabs::get_custom_tabs_list());
+        //echo 'found_tabs:';
+        //var_dump(AWP_Custom_Product_Tabs::get_custom_tabs_list());
 
     }
  
@@ -516,7 +538,7 @@ class AWP_Custom_Product_Tabs{
             'show_in_nav_menus'   => false,
             'show_in_admin_bar'   => true,
             'menu_position'       => 5,
-            'menu_icon'           => 'dashicons-feedback',
+            'menu_icon'           => 'dashicons-welcome-add-page',
             'can_export'          => true,
             'has_archive'         => false,
             'exclude_from_search' => true,
@@ -573,13 +595,13 @@ if(in_array('woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_
 } else {
 
     //sample_admin_notice__error();
-    add_action( 'admin_init', 'my_plugin_deactivate' );
-    add_action( 'admin_notices', 'my_plugin_admin_notice' );
+    add_action( 'admin_init', 'awp_gma_custom_product_tab_deactivate' );
+    add_action( 'admin_notices', 'awp_gma_custom_product_tab_admin_notice' );
 
-    function my_plugin_deactivate() {
+    function awp_gma_custom_product_tab_deactivate() {
               deactivate_plugins( plugin_basename( __FILE__ ) );
           }
-    function  my_plugin_admin_notice(){
+    function  awp_gma_custom_product_tab_admin_notice(){
         $class = 'notice notice-error';
         $message = __( 'You need to activate WooCommerce before using Almond Custom Product Tabs.', 'almond-custom-product-tabs' );
 

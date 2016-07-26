@@ -1,8 +1,18 @@
 jQuery(document).ready(function($){
-	console.log('hello from jquery');
+	
+	// Info messages
+	$('.custom_tabs_ids').click(function(){
+		//$('#custom_tabs_ids').html('You can select multiple tabs by clicking on them.');
 
-	jQuery('.awp-selected-option').click(function(e){
-		console.log('clicked!');
-		jQuery('.test-div').html('hello');
 	});
+	$('.exclude_custom_tabs_ids').click(function(){
+		//$('#exclude_custom_tabs_ids').html('You can exclude multiple tabs just clicking on them.');
+	});
+	
+	// Easy selection/deselection
+	$('select option').on('mousedown', function (e) {
+    	this.selected = !this.selected;
+    	e.preventDefault();
+	});
+
 });
