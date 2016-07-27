@@ -166,12 +166,21 @@ class AWP_Custom_Product_Tabs{
                 'id'       => 'wc_awp_custom_tabs_globals',
             ),
             'another_section' => array(
-                'name'     => __( 'Test tab', 'almond-custom-product-tabs' ),
+                'name'     => __( 'Test tab text', 'almond-custom-product-tabs' ),
                 'type'     => 'text',
                 //'desc'     => __( 'Used for including custom tabs on all products.', 'almond-custom-product-tabs' ),
                 //'desc_tip' => true,
                 'default'  => '',
                 'id'       => 'wc_awp_custom_test',
+
+            ),
+            'another_section_two' => array(
+                'name'     => __( 'Test tab textarea', 'almond-custom-product-tabs' ),
+                'type'     => 'textarea',
+                //'desc'     => __( 'Used for including custom tabs on all products.', 'almond-custom-product-tabs' ),
+                //'desc_tip' => true,
+                'default'  => '',
+                'id'       => 'wc_awp_custom_test_two',
 
             ),
             'section_end' => array(
@@ -424,14 +433,14 @@ class AWP_Custom_Product_Tabs{
      *
      * @see post_exists()
      * @see render_tab()
-     * @see get_settings() 
+     * @see get_settings() Settings are defined on get_settings, we can grab them with get_option
      * 
      * @return array
      */
     function woocommerce_product_tabs($tabs){
         global $post;
 
-        // TESTING NEW SECTIONS ON SETTINGS MENU
+        // TESTING NEW SECTIONS ON SETTINGS MENU, we grab the info in the areas here.
         $new_section = get_option('wc_awp_custom_test');
 
         //get global tabs
