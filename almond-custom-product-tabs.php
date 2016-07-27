@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: [DEV 0.0.3] Almond Custom Product Tabs
+Plugin Name: [DEV 0.0.3] More Product Tabs
 Plugin URI: http://almondwp.com/woocommerce
 Description: A plugin that allows you to add customized product tabs to your products in your online store, for WooCommerce.
 Version: 0.0.3
@@ -152,7 +152,7 @@ class AWP_Custom_Product_Tabs{
     function get_settings(){
         $settings = array(
             'section_title' => array(
-                'name'     => __('Almond Custom Tabs','almond-custom-product-tabs'),
+                'name'     => __('More Product Tabs','almond-custom-product-tabs'),
                 'type'     => 'title',
                 'desc'     => '',
                 'id'       => 'wc_awp_custom_tabs_section_title',
@@ -279,7 +279,7 @@ class AWP_Custom_Product_Tabs{
         <li class="custom_tab">
            <!--<span class="dashicons dashicons-welcome-add-page"></span>-->
             <a href="#custom_tab_data_ctabs">
-                <?php _e('AWP Custom Tabs', 'almond-custom-product-tabs'); ?>
+                <?php _e('More Product Tabs', 'almond-custom-product-tabs'); ?>
             </a>
         </li>
         <?php
@@ -313,6 +313,9 @@ class AWP_Custom_Product_Tabs{
         );
         ?>
         <div id="custom_tab_data_ctabs" class="panel woocommerce_options_panel">
+        <div class="options_group">
+        <p><strong>More Custom Tabs</strong> allows you to add new custom tabs to the product page default ones: Description and Reviews. If you need further help step by step on how to set it up, please <a href="#">click here</a>.</p>
+        </div>
             <?php
 
             foreach ($fields as $field) {
@@ -521,23 +524,23 @@ class AWP_Custom_Product_Tabs{
      */
     function custom_product_tabs_post_type() {
         $labels = array(
-            'name'                => _x( 'AWP Product Tabs', 'Post Type General Name', 'almond-custom-product-tabs' ),
-            'singular_name'       => _x( 'AWP Product Tab', 'Post Type Singular Name', 'almond-custom-product-tabs' ),
-            'menu_name'           => __( 'product Tabs', 'almond-custom-product-tabs' ),
+            'name'                => _x( 'More Product Tabs', 'Post Type General Name', 'almond-custom-product-tabs' ),
+            'singular_name'       => _x( 'More Product Tab', 'Post Type Singular Name', 'almond-custom-product-tabs' ),
+            'menu_name'           => __( 'More Product Tabs', 'almond-custom-product-tabs' ),
             'parent_item_colon'   => __( '', 'almond-custom-product-tabs' ),
-            'all_items'           => __( 'AWP Product Tabs', 'almond-custom-product-tabs' ),
+            'all_items'           => __( 'More Product Tabs', 'almond-custom-product-tabs' ), //dashboard products submenu
             'view_item'           => __( '', 'almond-custom-product-tabs' ),
-            'add_new_item'        => __( 'Add AWP Product Tab', 'almond-custom-product-tabs' ),
-            'add_new'             => __( 'Add New AWP Product Tab', 'almond-custom-product-tabs' ),
-            'edit_item'           => __( 'Edit AWP Product Tab', 'almond-custom-product-tabs' ),
-            'update_item'         => __( 'Update AWP Product Tab', 'almond-custom-product-tabs' ),
-            'search_items'        => __( 'Search AWP Product Tab', 'almond-custom-product-tabs' ),
-            'not_found'           => __( 'AWP Product Tab not found', 'almond-custom-product-tabs' ),
-            'not_found_in_trash'  => __( 'AWP Product Tab not found in Trash', 'almond-custom-product-tabs' ),
+            'add_new_item'        => __( 'Add Product Tab', 'almond-custom-product-tabs' ),
+            'add_new'             => __( 'Add New Product Tab', 'almond-custom-product-tabs' ),
+            'edit_item'           => __( 'Edit Product Tab', 'almond-custom-product-tabs' ),
+            'update_item'         => __( 'Update Product Tab', 'almond-custom-product-tabs' ),
+            'search_items'        => __( 'Search Product Tabs', 'almond-custom-product-tabs' ),
+            'not_found'           => __( 'Product Tab not found', 'almond-custom-product-tabs' ),
+            'not_found_in_trash'  => __( 'Product Tab not found in Trash', 'almond-custom-product-tabs' ),
         );
         $args = array(
-            'label'               => __( 'Product Tabs', 'almond-custom-product-tabs' ),
-            'description'         => __( 'Custom Product Tabs', 'almond-custom-product-tabs' ),
+            'label'               => __( 'More Product Tabs', 'almond-custom-product-tabs' ),
+            'description'         => __( 'More Custom Product Tabs', 'almond-custom-product-tabs' ),
             'labels'              => $labels,
             'supports'            => array( 'title', 'editor', 'custom-fields' ),
             'hierarchical'        => false,
