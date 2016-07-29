@@ -9,16 +9,13 @@ Author URI: http://almondwp.com
 Text Domain: awp-gma-more-product-tabs
 */
 
-// Terminate the script if accessed outside of WordPress
 if(!defined('ABSPATH')){
 	exit;
 }
 
-/* WIP LINK ON ACTIVATION */
 function show_awp_gma_more_product_tabs_link_on_activation($plugin_links) {
         
     $plugin_links[] = '<a href="' . get_site_url() . '/wp-admin/admin.php?page=wc-settings&tab=awp_custom_tabs' . '">Settings</a>';
-    //$plugin_links[] = 'Settings';
     $plugin_links[] = '<a href="http://almondwp.com" target="_blank">More plugins by AlmondWP</a>';
     return $plugin_links;
 }
@@ -46,7 +43,7 @@ class AWP_GMA_More_Product_Tabs{
     function __construct(){
         if (is_admin()){
 
-            //add_filter( 'admin_head', array($this, 'awp_debug'));
+            
             add_action('admin_menu', array($this, 'awp_mpt_script'));
             
             add_filter( 'woocommerce_settings_tabs_array', array($this,'woocommerce_settings_tabs_array'), 50 );
@@ -54,19 +51,19 @@ class AWP_GMA_More_Product_Tabs{
             add_action( 'woocommerce_update_options_awp_custom_tabs', array($this,'update_settings_tab' ));
             add_action( 'woocommerce_update_option_awp_gma_tab',array($this,'save_awp_gma_tab_field' ),10);
             add_action('woocommerce_admin_field_awp_gma_tab',array($this,'show_awp_gma_tab_field' ),10);
-            //add product tab link in admin
+            
             add_action( 'woocommerce_product_write_panel_tabs', array($this,'woocommerce_product_write_panel_tabs' ));
-            //add product tab content in admin
+            
             add_action('woocommerce_product_write_panels', array($this,'woocommerce_product_write_panels'));
-            //save product selected tabs
+            
             add_action('woocommerce_process_product_meta', array($this,'woocommerce_process_product_meta'), 10, 2);
        
         }else{
-            //add tabs to product page
+            
             add_filter( 'woocommerce_product_tabs', array($this,'woocommerce_product_tabs') );
         }
 
-        //add_action('wp_ajax_woocommerce_json_custom_tabs', array($this,'woocommerce_json_custom_tabs'));
+        
         add_action( 'init', array($this,'custom_product_tabs_post_type'), 0 );
     }
     
@@ -160,57 +157,6 @@ class AWP_GMA_More_Product_Tabs{
                 'default'  => '',
                 'id'       => 'wc_awp_custom_tabs_globals',
             ),
-            // 'another_section' => array(
-            //     'name'     => __( 'Test tab text', 'awp-gma-more-product-tabs' ),
-            //     'type'     => 'text',
-            //     'desc'     => __( 'Used for including custom tabs on all products.', 'awp-gma-more-product-tabs' ),
-            //     'desc_tip' => true,                
-            //     //'desc'     => __( 'Used for including custom tabs on all products.', 'awp-gma-more-product-tabs' ),
-            //     //'desc_tip' => true,
-            //     'default'  => '',
-            //     'id'       => 'wc_awp_custom_test',
-
-            // ),
-            // 'another_section_two' => array(
-            //     'name'     => __( 'Test tab textarea', 'awp-gma-more-product-tabs' ),
-            //     'type'     => 'textarea',
-            //     'desc'     => __( 'Used for including custom tabs on all products.', 'awp-gma-more-product-tabs' ),
-            //     'desc_tip' => true,                
-            //     //'desc'     => __( 'Used for including custom tabs on all products.', 'awp-gma-more-product-tabs' ),
-            //     //'desc_tip' => true,
-            //     'default'  => '',
-            //     'id'       => 'wc_awp_custom_test_two',
-
-            // ),
-            // 'another_section_three' => array(
-            //     'name'     => __( 'Test checkbox', 'awp-gma-more-product-tabs' ),
-            //     'type'     => 'checkbox',
-            //     'desc'     => __( 'Used for including custom tabs on all products.', 'awp-gma-more-product-tabs' ),
-            //     'desc_tip' => false,                
-            //     //'desc'     => __( 'Used for including custom tabs on all products.', 'awp-gma-more-product-tabs' ),
-            //     //'desc_tip' => true,
-            //     'default'  => '',
-            //     'id'       => 'wc_awp_custom_test_three',
-
-            // ),
-            // 'some_text' => array(
-            //     'name'     => __( 'some countries written here', 'awp-gma-more-product-tabs' ),
-            //     'type' => 'single_select_country',
-            //     'desc'     => __( 'Used for including custom tabs on all products.', 'awp-gma-more-product-tabs' ),
-            //     'desc_tip' => true,                
-            //     'id'   => 'wc_awp_custom_tabs_section_end',
-            // ),
-            // 'section_end' => array(
-            //     'type' => 'sectionend',
-            //     'desc'     => __( 'Used for including custom tabs on all products.', 'awp-gma-more-product-tabs' ),
-            //     'desc_tip' => false,                
-            //     'id'   => 'wc_awp_custom_tabs_section_end',
-            // ),
-            // // 'title' => array(
-            //     'name'  => __('TEST SECTION', 'awp-gma-more-product-tabs' ),
-            //     'type' => 'title',
-            //     'id'       => 'wc_awp_custom_section_test',
-            // ),
         );
 
         return apply_filters( 'wc_awp_custom_tabs_settings', $settings );
@@ -230,18 +176,16 @@ class AWP_GMA_More_Product_Tabs{
         ?>
         
         <form method="post">
-        <!--<p>DEBUG: Grab information from class-wc-admin-settings.php to check which types are in WooCommerce</p>-->
-        <!--<span class="dashicons dashicons-welcome-add-page"></span>-->
         <tr valign="top">
             <th scope="row" class="titledesc">
-            <!--<span class="dashicons dashicons-welcome-add-page"></span>-->
+            
                 <label for="<?php echo esc_attr( $field['id'] ); ?>">
                     <?php echo esc_html( $field['title'] ); ?>
                         
                 </label>
                 <?php echo '<img class="help_tip" data-tip="' . esc_attr( $field['desc'] ) . '" src="' . $woocommerce->plugin_url() . '/assets/images/help.png" height="16" width="16" />'; ?>
             </th>
-            <!--<p>Some more text can go here for the options: </p>-->
+            
 
             <td class="forminp forminp-<?php echo sanitize_title( $field['type'] ) ?>">
                 <p class="form-field custom_product_tabs">
@@ -406,38 +350,38 @@ class AWP_GMA_More_Product_Tabs{
     function woocommerce_product_tabs($tabs){
         global $post;
 
-        // TESTING NEW SECTIONS ON SETTINGS MENU, we grab the info in the areas here.
+        
         $new_section = get_option('wc_awp_custom_test');
-        //$new_section = get_option('wc_awp_custom_test_two');
+        
 
-        //get global tabs
+        
         $global_tabs = get_option('wc_awp_custom_tabs_globals');
         $global_tabs_ids = ! empty( $global_tabs ) ? array_map( 'absint',  $global_tabs ) : array();
-        /* Print debug on the product description*/
-        $this->awp_debug($global_tabs_ids);
+        
+        
  
-        //get global tabs to exclude from this product
+        
         $exclude_tabs = get_post_meta( $post->ID, 'exclude_custom_tabs_ids', true );
         $exclude_tabs_ids = ! empty($exclude_tabs  ) ? array_map( 'absint',  $exclude_tabs ) : array();
-        $this->awp_debug($exclude_tabs_ids);
+        
 
-        //get global tabs to include with current product
+        
         $product_tabs = get_post_meta( $post->ID, 'custom_tabs_ids', true );
         $_ids = ! empty($product_tabs  ) ? array_map( 'absint',  $product_tabs ) : null;
         
-        $this->awp_debug($product_tabs);
-        $this->awp_debug($_ids);
+        
+    
  
         //combine global and product specific tabs and remove excluded tabs
         $_ids = array_merge((array)$_ids,(array)array_diff((array)$global_tabs_ids, (array)$exclude_tabs_ids));
 
-        //AWP_GMA_More_Product_Tabs::awp_debug($global_tabs);
+        
         if ($_ids){
-            //fix order
+        
             $_ids = array_reverse($_ids);
-            //loop over tabs and add them
+        
             foreach ($_ids as $id) {
-                // if a post exist for this id, then...
+        
             	if ($this->post_exists($id)){
 					$display_title = get_post_meta($id,'tab_display_title',true);
 					$priority      = get_post_meta($id,'tab_priority',true);
@@ -445,7 +389,7 @@ class AWP_GMA_More_Product_Tabs{
 	                    'title'    => ( !empty($display_title)? $display_title : get_the_title($id) ),
 	                    'priority' => ( !empty($priority)? $priority : 50 ),
 	                    'callback' => array($this,'render_tab'),
-	                    'content'  => apply_filters('the_content',get_post_field( 'post_content', $id)) //this allows shortcodes in custom tabs
+	                    'content'  => apply_filters('the_content',get_post_field( 'post_content', $id))
 	                );
             	}
             }
@@ -468,15 +412,10 @@ class AWP_GMA_More_Product_Tabs{
      */
     function render_tab($key,$tab){
         global $post;
-        // added dashicon to test tab tab
-        //echo '<span class="dashicons dashicons-welcome-add-page"></span>';
-        // 
+     
         echo '<h2>'.apply_filters('awp_gma_mpt_tab_title',$tab['title'],$tab,$key).'</h2>';
         echo apply_filters('awp_gma_mpt_tab_content',$tab['content'],$tab,$key);
 
-        /* Lo que imprimo aqui sale en test tab asi que es comodo para debug */
-        //echo 'found_tabs:';
-        //var_dump(AWP_GMA_More_Product_Tabs::get_custom_tabs_list());
 
     }
  
@@ -561,16 +500,16 @@ class AWP_GMA_More_Product_Tabs{
             $found_tabs[ $post_id ] = get_the_title($post_id);
         }
         return $found_tabs;
-        /* devuelve las tablas creadas, string test tab asociada a id 87*/
+        
     }
-}//end AWP_GMA_More_Product_Tabs class.
+}
 
-// Create the instance of the main class if WooComerce is active, return a message to activate it otherwise.
+
 if(in_array('woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' )) )){
  	new AWP_GMA_More_Product_Tabs();	
 } else {
 
-    //sample_admin_notice__error();
+
     add_action( 'admin_init', 'awp_gma_more_product_tabs_deactivate' );
     add_action( 'admin_notices', 'awp_gma_more_product_tabs_admin_notice' );
 
@@ -583,7 +522,7 @@ if(in_array('woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_
 
         printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message ); 
 
-        // deactivates defaud plugin activated
+  
         if (isset($_GET['activate'])) {
             unset($_GET['activate']);
         }       
