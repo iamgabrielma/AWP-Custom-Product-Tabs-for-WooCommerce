@@ -474,7 +474,7 @@ class AWP_GMA_More_Product_Tabs{
     */
     function post_exists($post_id){
         /* post exist, with an id of $post_id*/
-        $this->awp_debug($post_id);
+        //$this->awp_debug($post_id);
 
     	return is_string(get_post_status( $post_id ) );
     }
