@@ -9,7 +9,7 @@ jQuery(document).ready(function($){
 		//$('#exclude_custom_tabs_ids').html('You can exclude multiple tabs just clicking on them.');
 	});
 	
-	// Easy selection/deselection
+	// Easy selection/deselection with one click on global tabs
 	$('select option').on('mousedown', function (e) {
     	this.selected = !this.selected;
     	e.preventDefault();
